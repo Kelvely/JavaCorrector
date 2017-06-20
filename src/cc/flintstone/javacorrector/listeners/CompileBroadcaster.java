@@ -47,7 +47,7 @@ public class CompileBroadcaster implements CompileListener {
 		}
 		
 		for (Corrector corrector : correctors) {
-			if(corrector.correct(classes, blueJ)) break;
+			if(corrector.correct(classes)) break;
 		}
 	}
 
