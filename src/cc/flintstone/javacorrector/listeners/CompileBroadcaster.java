@@ -1,13 +1,17 @@
 package cc.flintstone.javacorrector.listeners;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
+import bluej.extensions.BClass;
 import bluej.extensions.BlueJ;
 import bluej.extensions.event.CompileEvent;
 import bluej.extensions.event.CompileListener;
 import cc.flintstone.javacorrector.correctors.Corrector;
+import cc.flintstone.javacorrector.correctors.util.Pathfinder;
 
 public class CompileBroadcaster implements CompileListener {
 	
@@ -30,8 +34,20 @@ public class CompileBroadcaster implements CompileListener {
 
 	@Override
 	public void compileSucceeded(CompileEvent compileEvent) {
+		File[] files = compileEvent.getFiles();
+		Map<File, BClass> rawClasses = Pathfinder.findAllClasses(blueJ, files);
+		
+		List<BClass> classes = new ArrayList<>();
+		
+		for (File file : files) {
+			BClass bClass = rawClasses.get(file);
+			if(bClass != null) {
+				classes.add(bClass);
+			}
+		}
+		
 		for (Corrector corrector : correctors) {
-			if(corrector.correct(compileEvent, blueJ)) break;
+			if(corrector.correct(classes, blueJ)) break;
 		}
 	}
 

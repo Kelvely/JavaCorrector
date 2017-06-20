@@ -1,10 +1,12 @@
 package cc.flintstone.javacorrector.correctors;
 
+import java.util.List;
+
+import bluej.extensions.BClass;
 import bluej.extensions.BlueJ;
-import bluej.extensions.event.CompileEvent;
 
 public interface Corrector {
 	
-	public boolean correct(CompileEvent compileEvent, BlueJ blueJ);
+	public boolean correct(List<BClass> classes, BlueJ blueJ);
 
 }
