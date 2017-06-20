@@ -11,7 +11,7 @@ import bluej.extensions.BlueJ;
 import bluej.extensions.event.CompileEvent;
 import bluej.extensions.event.CompileListener;
 import cc.flintstone.javacorrector.correctors.Corrector;
-import cc.flintstone.javacorrector.correctors.util.Pathfinder;
+import cc.flintstone.javacorrector.util.Pathfinder;
 
 public class CompileBroadcaster implements CompileListener {
 	

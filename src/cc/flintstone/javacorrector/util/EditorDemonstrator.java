@@ -1,4 +1,4 @@
-package cc.flintstone.javacorrector.correctors.util;
+package cc.flintstone.javacorrector.util;
 
 import bluej.extensions.editor.Editor;
 import bluej.extensions.editor.TextLocation;

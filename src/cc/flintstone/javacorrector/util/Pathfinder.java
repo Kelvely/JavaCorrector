@@ -1,4 +1,4 @@
-package cc.flintstone.javacorrector.correctors.util;
+package cc.flintstone.javacorrector.util;
 
 import java.io.File;
 import java.util.HashMap;
