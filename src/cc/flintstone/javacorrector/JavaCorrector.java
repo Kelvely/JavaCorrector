@@ -3,16 +3,19 @@ package cc.flintstone.javacorrector;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sun.corba.se.impl.util.Version;
-
 import bluej.extensions.BlueJ;
 import bluej.extensions.Extension;
+import cc.flintstone.javacorrector.correctors.ClassNameCorrector;
 import cc.flintstone.javacorrector.correctors.Corrector;
+import cc.flintstone.javacorrector.correctors.FieldNameCorrector;
+import cc.flintstone.javacorrector.correctors.MethodNameCorrector;
+import cc.flintstone.javacorrector.correctors.NestedIfCorrector;
+import cc.flintstone.javacorrector.listeners.CompileBroadcaster;
 
 public class JavaCorrector extends Extension {
 	
 	private BlueJ blueJ;
-	private final List<Corrector> correctors = new ArrayList<>();
+	private CompileBroadcaster broadcaster;
 	
 	private static final String NAME = "Java Corrector";
 	private static final String VERSION = "0.1A";
@@ -35,6 +38,15 @@ public class JavaCorrector extends Extension {
 	@Override
 	public void startup(BlueJ blueJ) {
 		this.blueJ = blueJ;
+		
+		List<Corrector> correctors = new ArrayList<>();
+		correctors.add(ClassNameCorrector.INSTANCE);
+		correctors.add(FieldNameCorrector.INSTANCE);
+		correctors.add(MethodNameCorrector.INSTANCE);
+		correctors.add(NestedIfCorrector.INSTANCE);
+		broadcaster = new CompileBroadcaster(blueJ, correctors);
+		
+		blueJ.addCompileListener(broadcaster);
 	}
 	
 	public BlueJ getBlueJ() {
