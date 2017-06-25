@@ -5,6 +5,8 @@ import java.util.List;
 import bluej.extensions.BClass;
 
 public class VariableNameCorrector implements Corrector {
+	
+	public static final VariableNameCorrector INSTANCE = new VariableNameCorrector();
 
 	@Override
 	public boolean correct(List<BClass> classes) {

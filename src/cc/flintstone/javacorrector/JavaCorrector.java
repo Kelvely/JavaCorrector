@@ -10,6 +10,7 @@ import cc.flintstone.javacorrector.correctors.Corrector;
 import cc.flintstone.javacorrector.correctors.FieldNameCorrector;
 import cc.flintstone.javacorrector.correctors.MethodNameCorrector;
 import cc.flintstone.javacorrector.correctors.NestedIfCorrector;
+import cc.flintstone.javacorrector.correctors.VariableNameCorrector;
 import cc.flintstone.javacorrector.listeners.CompileBroadcaster;
 
 public class JavaCorrector extends Extension {
@@ -44,6 +45,7 @@ public class JavaCorrector extends Extension {
 		correctors.add(FieldNameCorrector.INSTANCE);
 		correctors.add(MethodNameCorrector.INSTANCE);
 		correctors.add(NestedIfCorrector.INSTANCE);
+		correctors.add(VariableNameCorrector.INSTANCE);
 		broadcaster = new CompileBroadcaster(blueJ, correctors);
 		
 		blueJ.addCompileListener(broadcaster);
