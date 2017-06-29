@@ -1,15 +1,16 @@
 package cc.flintstone.javacorrector;
 
 import java.awt.event.ActionEvent;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.net.URL;
-import java.net.URLClassLoader;
+//import java.lang.reflect.InvocationTargetException;
+//import java.lang.reflect.Method;
+//import java.net.URL;
+//import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 
 import bluej.extensions.BClass;
 import bluej.extensions.BlueJ;
@@ -74,7 +75,7 @@ public class JavaCorrector extends Extension {
 	public void startup(BlueJ blueJ) {
 		this.blueJ = blueJ;
 		
-		try {
+		/*try {
 			Class.forName("com.github.javaparser.JavaParser");
 		} catch (ClassNotFoundException ex) {
 			URL javaparserUrl = JavaCorrector.class.getResource("javaparser-core-3.2.9-SNAPSHOT.jar");
@@ -91,9 +92,13 @@ public class JavaCorrector extends Extension {
 				urlAdder.invoke(classloader, javaparserUrl);
 			} catch (NoSuchMethodException | SecurityException | IllegalAccessException | 
 					IllegalArgumentException | InvocationTargetException e) {
-				e.printStackTrace();
+				//e.printStackTrace();
+				JOptionPane.showMessageDialog(null, ex.toString());
+				if(e instanceof InvocationTargetException) {
+					JOptionPane.showMessageDialog(null, ((InvocationTargetException) e).getTargetException().toString());
+				}
 			}
-		}
+		}*/
 		
 		correctors.clear();
 		correctors.add(ClassNameCorrector.INSTANCE);
@@ -123,7 +128,12 @@ public class JavaCorrector extends Extension {
 				
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					CorrectorBroadcaster.broadcast(correctors, bc);
+					try {
+						CorrectorBroadcaster.broadcast(correctors, bc);
+						JOptionPane.showMessageDialog(null, "Nothing wrong.");
+					} catch (Throwable ex) {
+						JOptionPane.showMessageDialog(null, ex.toString());
+					}
 				}
 				
 			});
