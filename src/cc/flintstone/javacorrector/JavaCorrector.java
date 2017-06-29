@@ -1,5 +1,9 @@
 package cc.flintstone.javacorrector;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,6 +18,29 @@ import cc.flintstone.javacorrector.correctors.VariableNameCorrector;
 import cc.flintstone.javacorrector.listeners.CompileBroadcaster;
 
 public class JavaCorrector extends Extension {
+	
+	static {
+		try {
+			Class.forName("com.github.javaparser.JavaParser");
+		} catch (ClassNotFoundException ex) {
+			URL javaparserUrl = JavaCorrector.class.getResource("javaparser-core-3.2.9-SNAPSHOT.jar");
+			try {
+				Method urlAdder = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
+				boolean accessibility = urlAdder.isAccessible();
+			
+			
+				if(!accessibility) {
+					urlAdder.setAccessible(true);
+				}
+				
+				URLClassLoader classloader = (URLClassLoader)ClassLoader.getSystemClassLoader();
+				urlAdder.invoke(classloader, javaparserUrl);
+			} catch (NoSuchMethodException | SecurityException | IllegalAccessException | 
+					IllegalArgumentException | InvocationTargetException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 	
 	private BlueJ blueJ;
 	private CompileBroadcaster broadcaster;
