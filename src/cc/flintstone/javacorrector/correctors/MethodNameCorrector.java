@@ -13,8 +13,9 @@ import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import bluej.extensions.BClass;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
-import bluej.extensions.editor.TextLocation;
 import cc.flintstone.javacorrector.util.EditorDemonstrator;
+import cc.flintstone.javacorrector.util.SelectionConverter;
+import cc.flintstone.javacorrector.util.SelectionConverter.JavaParserSelection;
 
 public class MethodNameCorrector implements Corrector {
 	
@@ -49,8 +50,7 @@ public class MethodNameCorrector implements Corrector {
 			Position end = method.getName().getEnd().get();
 			try {
 				EditorDemonstrator.preachCode(bClass.getEditor(), 
-						new TextLocation(start.line, start.column), 
-						new TextLocation(end.line, end.column), 
+						SelectionConverter.toBlueJ(new JavaParserSelection(start, end)), 
 						"Improper method naming \"" + method.getNameAsString() + "\" - " + 
 						"Method name should be in camelcase");
 			} catch (ProjectNotOpenException | PackageNotFoundException e) {

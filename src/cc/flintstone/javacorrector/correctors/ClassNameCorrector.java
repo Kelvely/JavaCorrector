@@ -13,8 +13,9 @@ import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import bluej.extensions.BClass;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
-import bluej.extensions.editor.TextLocation;
 import cc.flintstone.javacorrector.util.EditorDemonstrator;
+import cc.flintstone.javacorrector.util.SelectionConverter;
+import cc.flintstone.javacorrector.util.SelectionConverter.JavaParserSelection;
 
 public class ClassNameCorrector implements Corrector {
 	
@@ -49,8 +50,7 @@ public class ClassNameCorrector implements Corrector {
 			Position end = clazz.getName().getEnd().get();
 			try {
 				EditorDemonstrator.preachCode(bClass.getEditor(), 
-						new TextLocation(start.line, start.column), 
-						new TextLocation(end.line, end.column), 
+						SelectionConverter.toBlueJ(new JavaParserSelection(start, end)),
 						"Improper class or interface naming \"" + clazz.getNameAsString() + "\" - " + 
 						"Class or interface name should be in titlecase");
 			} catch (ProjectNotOpenException | PackageNotFoundException e) {

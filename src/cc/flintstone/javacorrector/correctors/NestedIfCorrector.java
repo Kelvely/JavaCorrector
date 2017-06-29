@@ -1,18 +1,22 @@
 package cc.flintstone.javacorrector.correctors;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.Position;
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.IfStmt;
+import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 
 import bluej.extensions.BClass;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
-import bluej.extensions.editor.TextLocation;
 import cc.flintstone.javacorrector.util.EditorDemonstrator;
+import cc.flintstone.javacorrector.util.SelectionConverter;
+import cc.flintstone.javacorrector.util.SelectionConverter.JavaParserSelection;
 
 public class NestedIfCorrector implements Corrector {
 	
@@ -46,8 +50,7 @@ public class NestedIfCorrector implements Corrector {
 			Position end = overnestedIfStmt.getEnd().get();
 			try {
 				EditorDemonstrator.preachCode(bClass.getEditor(), 
-						new TextLocation(start.line, start.column), 
-						new TextLocation(end.line, end.column), 
+						SelectionConverter.toBlueJ(new JavaParserSelection(start, end)),
 						"Too deep nested if - If statement should not be nested for more than 3 times");
 			} catch (ProjectNotOpenException | PackageNotFoundException e) {
 			}
@@ -76,15 +79,29 @@ public class NestedIfCorrector implements Corrector {
 			
 			final int nextNestLeft = nestLeft - 1;
 			
-			if(nextNestLeft > 0) {
+			if(nextNestLeft < 0) {
 				overnestedIfStmt = n;
 				return;
 			} else {
 				NestedIfChecker checker = new NestedIfChecker(nextNestLeft);
 				
-				checker.visit(n, arg);
+				Statement thenStmt = n.getThenStmt();
+				if(thenStmt instanceof BlockStmt) {
+					checker.visit((BlockStmt) thenStmt, arg);
+					if(checker.overnestedIfStmt != null) {
+						overnestedIfStmt = checker.overnestedIfStmt;
+						return;
+					}
+				}
 				
-				overnestedIfStmt = checker.overnestedIfStmt;
+				Optional<Statement> elseStmtOp = n.getElseStmt();
+				if(elseStmtOp.isPresent()) {
+					Statement elseStmt = elseStmtOp.get();
+					if(elseStmt instanceof BlockStmt) {
+						checker.visit((BlockStmt) elseStmt, arg);
+						overnestedIfStmt = checker.overnestedIfStmt;
+					}
+				}
 			}
 			
 		}

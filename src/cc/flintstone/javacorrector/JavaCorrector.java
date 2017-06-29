@@ -10,12 +10,14 @@ import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
+//import javax.swing.JOptionPane;
 
 import bluej.extensions.BClass;
 import bluej.extensions.BlueJ;
 import bluej.extensions.Extension;
 import bluej.extensions.MenuGenerator;
+import bluej.extensions.PackageNotFoundException;
+import bluej.extensions.ProjectNotOpenException;
 import cc.flintstone.javacorrector.correctors.ClassNameCorrector;
 import cc.flintstone.javacorrector.correctors.Corrector;
 import cc.flintstone.javacorrector.correctors.CorrectorBroadcaster;
@@ -23,6 +25,7 @@ import cc.flintstone.javacorrector.correctors.FieldNameCorrector;
 import cc.flintstone.javacorrector.correctors.MethodNameCorrector;
 import cc.flintstone.javacorrector.correctors.NestedIfCorrector;
 import cc.flintstone.javacorrector.correctors.VariableNameCorrector;
+import cc.flintstone.javacorrector.util.EditorDemonstrator;
 
 public class JavaCorrector extends Extension {
 	
@@ -54,7 +57,7 @@ public class JavaCorrector extends Extension {
 	private final List<Corrector> correctors = new ArrayList<>();
 	
 	private static final String NAME = "Java Corrector";
-	private static final String VERSION = "0.1A";
+	private static final String VERSION = "1.0G";
 
 	@Override
 	public String getName() {
@@ -128,12 +131,21 @@ public class JavaCorrector extends Extension {
 				
 				@Override
 				public void actionPerformed(ActionEvent e) {
+					if(!CorrectorBroadcaster.broadcast(correctors, bc)) {
+						try {
+							EditorDemonstrator.showMessage(bc.getEditor(), "Your style is nice");
+						} catch (ProjectNotOpenException | PackageNotFoundException e1) {
+							e1.printStackTrace();
+						}
+					}
+					/*
 					try {
-						CorrectorBroadcaster.broadcast(correctors, bc);
+						
 						JOptionPane.showMessageDialog(null, "Nothing wrong.");
 					} catch (Throwable ex) {
 						JOptionPane.showMessageDialog(null, ex.toString());
 					}
+					*/
 				}
 				
 			});

@@ -6,10 +6,11 @@ import bluej.extensions.BClass;
 
 public class CorrectorBroadcaster {
 	
-	public static void broadcast(Collection<Corrector> correctors, BClass bClass) {
+	public static boolean broadcast(Collection<Corrector> correctors, BClass bClass) {
 		for (Corrector corrector : correctors) {
-			if(corrector.correct(bClass)) return;
+			if(corrector.correct(bClass)) return true;
 		}
+		return false;
 	}
 
 }

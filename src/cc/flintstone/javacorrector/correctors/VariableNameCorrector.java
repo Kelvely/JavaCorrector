@@ -14,8 +14,9 @@ import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import bluej.extensions.BClass;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
-import bluej.extensions.editor.TextLocation;
 import cc.flintstone.javacorrector.util.EditorDemonstrator;
+import cc.flintstone.javacorrector.util.SelectionConverter;
+import cc.flintstone.javacorrector.util.SelectionConverter.JavaParserSelection;
 
 public class VariableNameCorrector implements Corrector {
 	
@@ -50,8 +51,7 @@ public class VariableNameCorrector implements Corrector {
 			Position end = var.getName().getEnd().get();
 			try {
 				EditorDemonstrator.preachCode(bClass.getEditor(), 
-						new TextLocation(start.line, start.column), 
-						new TextLocation(end.line, end.column), 
+						SelectionConverter.toBlueJ(new JavaParserSelection(start, end)),
 						"Improper variable naming \"" + var.getNameAsString() + "\" - " + 
 						"Variable name should be in camelcase");
 			} catch (ProjectNotOpenException | PackageNotFoundException e) {
