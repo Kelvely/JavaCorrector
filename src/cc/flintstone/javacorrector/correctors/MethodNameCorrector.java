@@ -21,48 +21,44 @@ public class MethodNameCorrector implements Corrector {
 	public static final MethodNameCorrector INSTANCE = new MethodNameCorrector();
 
 	@Override
-	public boolean correct(List<BClass> classes) {
-		for (BClass bClass : classes) {
-			CompilationUnit cUnit;
+	public boolean correct(BClass bClass) {
+		CompilationUnit cUnit;
+		try {
+			cUnit = JavaParser.parse(bClass.getJavaFile());
+		} catch (IOException ex) {
 			try {
-				cUnit = JavaParser.parse(bClass.getJavaFile());
-			} catch (IOException ex) {
-				try {
-					EditorDemonstrator.showMessage(bClass.getEditor(), "Failed to load the java file!");
-				} catch (ProjectNotOpenException | PackageNotFoundException e) {
-					return true;
-				}
-				return true;
+				EditorDemonstrator.showMessage(bClass.getEditor(), "Failed to load the java file!");
 			} catch (ProjectNotOpenException | PackageNotFoundException e) {
 				return true;
 			}
-			
-			ImproperlyNamedMethodsGetter imGetter = new ImproperlyNamedMethodsGetter();
-			
-			imGetter.visit(cUnit, null);
-			
-			List<MethodDeclaration> improperlyNamedMethods = imGetter.getImproperlyNamedMethods();
-			
-			if(!improperlyNamedMethods.isEmpty()) {
-				MethodDeclaration method = improperlyNamedMethods.get(0);
-				
-				Position start = method.getName().getBegin().get();
-				Position end = method.getName().getEnd().get();
-				try {
-					EditorDemonstrator.preachCode(bClass.getEditor(), 
-							new TextLocation(start.line, start.column), 
-							new TextLocation(end.line, end.column), 
-							"Improper method naming \"" + method.getNameAsString() + "\" - " + 
-							"Method name should be in camelcase");
-				} catch (ProjectNotOpenException | PackageNotFoundException e) {
-				}
-				return true;
-			}
-			
-			
+			return true;
+		} catch (ProjectNotOpenException | PackageNotFoundException e) {
+			return true;
 		}
 		
-		return false;
+		ImproperlyNamedMethodsGetter imGetter = new ImproperlyNamedMethodsGetter();
+		
+		imGetter.visit(cUnit, null);
+		
+		List<MethodDeclaration> improperlyNamedMethods = imGetter.getImproperlyNamedMethods();
+		
+		if(!improperlyNamedMethods.isEmpty()) {
+			MethodDeclaration method = improperlyNamedMethods.get(0);
+			
+			Position start = method.getName().getBegin().get();
+			Position end = method.getName().getEnd().get();
+			try {
+				EditorDemonstrator.preachCode(bClass.getEditor(), 
+						new TextLocation(start.line, start.column), 
+						new TextLocation(end.line, end.column), 
+						"Improper method naming \"" + method.getNameAsString() + "\" - " + 
+						"Method name should be in camelcase");
+			} catch (ProjectNotOpenException | PackageNotFoundException e) {
+			}
+			return true;
+		} else {
+			return false;
+		}
     }
 	
 	private final static class ImproperlyNamedMethodsGetter extends VoidVisitorAdapter<Void> {

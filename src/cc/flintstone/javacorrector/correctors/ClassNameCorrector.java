@@ -21,47 +21,44 @@ public class ClassNameCorrector implements Corrector {
 	public static final ClassNameCorrector INSTANCE = new ClassNameCorrector();
 
 	@Override
-	public boolean correct(List<BClass> classes) {
-		for (BClass bClass : classes) {
-			CompilationUnit cUnit;
+	public boolean correct(BClass bClass) {
+		CompilationUnit cUnit;
+		try {
+			cUnit = JavaParser.parse(bClass.getJavaFile());
+		} catch (IOException ex) {
 			try {
-				cUnit = JavaParser.parse(bClass.getJavaFile());
-			} catch (IOException ex) {
-				try {
-					EditorDemonstrator.showMessage(bClass.getEditor(), "Failed to load the java file!");
-				} catch (ProjectNotOpenException | PackageNotFoundException e) {
-					return true;
-				}
-				return true;
+				EditorDemonstrator.showMessage(bClass.getEditor(), "Failed to load the java file!");
 			} catch (ProjectNotOpenException | PackageNotFoundException e) {
 				return true;
 			}
-			
-			ImproperlyNamedClassesGetter icGetter = new ImproperlyNamedClassesGetter();
-			
-			icGetter.visit(cUnit, null);
-			
-			List<ClassOrInterfaceDeclaration> improperlyNamedClasses = icGetter.getImproperlyNamedClasses();
-			
-			if(!improperlyNamedClasses.isEmpty()) {
-				ClassOrInterfaceDeclaration clazz = improperlyNamedClasses.get(0);
-				
-				Position start = clazz.getName().getBegin().get();
-				Position end = clazz.getName().getEnd().get();
-				try {
-					EditorDemonstrator.preachCode(bClass.getEditor(), 
-							new TextLocation(start.line, start.column), 
-							new TextLocation(end.line, end.column), 
-							"Improper class or interface naming \"" + clazz.getNameAsString() + "\" - " + 
-							"Class or interface name should be in titlecase");
-				} catch (ProjectNotOpenException | PackageNotFoundException e) {
-				}
-				return true;
-			}
-			
+			return true;
+		} catch (ProjectNotOpenException | PackageNotFoundException e) {
+			return true;
 		}
 		
-		return false;
+		ImproperlyNamedClassesGetter icGetter = new ImproperlyNamedClassesGetter();
+		
+		icGetter.visit(cUnit, null);
+		
+		List<ClassOrInterfaceDeclaration> improperlyNamedClasses = icGetter.getImproperlyNamedClasses();
+		
+		if(!improperlyNamedClasses.isEmpty()) {
+			ClassOrInterfaceDeclaration clazz = improperlyNamedClasses.get(0);
+			
+			Position start = clazz.getName().getBegin().get();
+			Position end = clazz.getName().getEnd().get();
+			try {
+				EditorDemonstrator.preachCode(bClass.getEditor(), 
+						new TextLocation(start.line, start.column), 
+						new TextLocation(end.line, end.column), 
+						"Improper class or interface naming \"" + clazz.getNameAsString() + "\" - " + 
+						"Class or interface name should be in titlecase");
+			} catch (ProjectNotOpenException | PackageNotFoundException e) {
+			}
+			return true;
+		} else {
+			return false;
+		}
     }
 	
 	private final static class ImproperlyNamedClassesGetter extends VoidVisitorAdapter<Void> {

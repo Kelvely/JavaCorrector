@@ -22,48 +22,44 @@ public class FieldNameCorrector implements Corrector {
 	public static final FieldNameCorrector INSTANCE = new FieldNameCorrector();
 
 	@Override
-	public boolean correct(List<BClass> classes) {
-		for (BClass bClass : classes) {
-			CompilationUnit cUnit;
+	public boolean correct(BClass bClass) {
+		CompilationUnit cUnit;
+		try {
+			cUnit = JavaParser.parse(bClass.getJavaFile());
+		} catch (IOException ex) {
 			try {
-				cUnit = JavaParser.parse(bClass.getJavaFile());
-			} catch (IOException ex) {
-				try {
-					EditorDemonstrator.showMessage(bClass.getEditor(), "Failed to load the java file!");
-				} catch (ProjectNotOpenException | PackageNotFoundException e) {
-					return true;
-				}
-				return true;
+				EditorDemonstrator.showMessage(bClass.getEditor(), "Failed to load the java file!");
 			} catch (ProjectNotOpenException | PackageNotFoundException e) {
 				return true;
 			}
-			
-			ImproperlyNamedFieldGetter ivGetter = new ImproperlyNamedFieldGetter();
-			
-			ivGetter.visit(cUnit, null);
-			
-			List<VariableDeclarator> improperlyNamedVariables = ivGetter.getImproperlyNamedVariables();
-			
-			if(improperlyNamedVariables.size() > 0) {
-				VariableDeclarator var = improperlyNamedVariables.get(0);
-				
-				Position start = var.getName().getBegin().get();
-				Position end = var.getName().getEnd().get();
-				try {
-					EditorDemonstrator.preachCode(bClass.getEditor(), 
-							new TextLocation(start.line, start.column), 
-							new TextLocation(end.line, end.column), 
-							"Improper field naming \"" + var.getNameAsString() + "\" - " + 
-							"Normal field name should be in camelcase, and unchanged field name should be capitalized");
-				} catch (ProjectNotOpenException | PackageNotFoundException e) {
-				}
-				return true;
-			}
-			
-			
+			return true;
+		} catch (ProjectNotOpenException | PackageNotFoundException e) {
+			return true;
 		}
 		
-		return false;
+		ImproperlyNamedFieldGetter ivGetter = new ImproperlyNamedFieldGetter();
+		
+		ivGetter.visit(cUnit, null);
+		
+		List<VariableDeclarator> improperlyNamedVariables = ivGetter.getImproperlyNamedVariables();
+		
+		if(improperlyNamedVariables.size() > 0) {
+			VariableDeclarator var = improperlyNamedVariables.get(0);
+			
+			Position start = var.getName().getBegin().get();
+			Position end = var.getName().getEnd().get();
+			try {
+				EditorDemonstrator.preachCode(bClass.getEditor(), 
+						new TextLocation(start.line, start.column), 
+						new TextLocation(end.line, end.column), 
+						"Improper field naming \"" + var.getNameAsString() + "\" - " + 
+						"Normal field name should be in camelcase, and unchanged field name should be capitalized");
+			} catch (ProjectNotOpenException | PackageNotFoundException e) {
+			}
+			return true;
+		} else {
+			return false;
+		}
     }
 	
 	private final static class ImproperlyNamedFieldGetter extends VoidVisitorAdapter<Void> {

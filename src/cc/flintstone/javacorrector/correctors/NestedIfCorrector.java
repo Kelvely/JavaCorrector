@@ -1,7 +1,6 @@
 package cc.flintstone.javacorrector.correctors;
 
 import java.io.IOException;
-import java.util.List;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.Position;
@@ -20,44 +19,42 @@ public class NestedIfCorrector implements Corrector {
 	public static final NestedIfCorrector INSTANCE = new NestedIfCorrector();
 
 	@Override
-	public boolean correct(List<BClass> classes) {
-		for (BClass bClass : classes) {
-			CompilationUnit cUnit;
+	public boolean correct(BClass bClass) {
+		CompilationUnit cUnit;
+		try {
+			cUnit = JavaParser.parse(bClass.getJavaFile());
+		} catch (IOException ex) {
 			try {
-				cUnit = JavaParser.parse(bClass.getJavaFile());
-			} catch (IOException ex) {
-				try {
-					EditorDemonstrator.showMessage(bClass.getEditor(), "Failed to load the java file!");
-				} catch (ProjectNotOpenException | PackageNotFoundException e) {
-					return true;
-				}
-				return true;
+				EditorDemonstrator.showMessage(bClass.getEditor(), "Failed to load the java file!");
 			} catch (ProjectNotOpenException | PackageNotFoundException e) {
 				return true;
 			}
-			
-			NestedIfChecker checker = new NestedIfChecker(3);
-			
-			checker.visit(cUnit, null);
-			
-			IfStmt overnestedIfStmt = checker.getOvernestedIfStmt();
-			
-			if(overnestedIfStmt != null) {
-				
-				Position start = overnestedIfStmt.getBegin().get();
-				Position end = overnestedIfStmt.getEnd().get();
-				try {
-					EditorDemonstrator.preachCode(bClass.getEditor(), 
-							new TextLocation(start.line, start.column), 
-							new TextLocation(end.line, end.column), 
-							"Too deep nested if - If statement should not be nested for more than 3 times");
-				} catch (ProjectNotOpenException | PackageNotFoundException e) {
-				}
-				return true;
-			}
+			return true;
+		} catch (ProjectNotOpenException | PackageNotFoundException e) {
+			return true;
 		}
 		
-		return false;
+		NestedIfChecker checker = new NestedIfChecker(3);
+		
+		checker.visit(cUnit, null);
+		
+		IfStmt overnestedIfStmt = checker.getOvernestedIfStmt();
+		
+		if(overnestedIfStmt != null) {
+			
+			Position start = overnestedIfStmt.getBegin().get();
+			Position end = overnestedIfStmt.getEnd().get();
+			try {
+				EditorDemonstrator.preachCode(bClass.getEditor(), 
+						new TextLocation(start.line, start.column), 
+						new TextLocation(end.line, end.column), 
+						"Too deep nested if - If statement should not be nested for more than 3 times");
+			} catch (ProjectNotOpenException | PackageNotFoundException e) {
+			}
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
 	private final static class NestedIfChecker extends VoidVisitorAdapter<Void> {
