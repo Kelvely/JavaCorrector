@@ -57,7 +57,7 @@ public class JavaCorrector extends Extension {
 	private final List<Corrector> correctors = new ArrayList<>();
 	
 	private static final String NAME = "Java Corrector";
-	private static final String VERSION = "1.0G";
+	private static final String VERSION = "R1.0";
 
 	@Override
 	public String getName() {
